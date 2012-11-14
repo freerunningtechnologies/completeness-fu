@@ -84,9 +84,24 @@ module CompletenessFu
 
         def all_checks_which_pass(should_pass = true)
           self.completeness_checks.inject([]) do |results, check|
-            check_result = run_check(check[:check])
-            results << translate_check_details(check) if (should_pass ? check_result : !check_result)
+            unless skip?(check[:skip])
+              check_result = run_check(check[:check])
+              results << translate_check_details(check) if (should_pass ? check_result : !check_result)
+            end
             results
+          end
+        end
+
+        def skip?(skip)
+          case skip
+          when Proc
+            return skip.call(self)
+          when Symbol
+            return self.send skip
+          when TrueClass, FalseClass
+            return skip
+          else
+            raise CompletenessFuError, "skip of type #{skip.class} not acceptable"
           end
         end
 
