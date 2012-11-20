@@ -54,6 +54,10 @@ module CompletenessFu
         all_checks_which_pass(false)
       end
 
+      def failed_checks_with_form
+        failed_checks.reject{|c| !c[:has_form]}
+      end
+
       # returns an array of hashes with the translated name, description + weighting
       def passed_checks
         all_checks_which_pass
