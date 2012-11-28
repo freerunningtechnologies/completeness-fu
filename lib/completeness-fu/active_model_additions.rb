@@ -75,6 +75,10 @@ module CompletenessFu
         self.completeness_score.to_f / max_completeness_score.to_f  * 100
       end
 
+      def max_completeness_score
+        self.completeness_checks.inject(0) { |score, check| score += (skip?(check[:skip]) ? 0 : check[:weighting]) }
+      end
+
       # returns a basic 'grading' based on percent_complete, defaults are :high, :medium, :low, and :poor
       def completeness_grade
         CompletenessFu.default_gradings.each do |grading|
@@ -83,12 +87,7 @@ module CompletenessFu
         raise CompletenessFuError, "grade could not be determined with percent complete #{self.percent_complete.round}"
       end
 
-
       private
-        def max_completeness_score
-          self.completeness_checks.inject(0) { |score, check| score += (skip?(check[:skip]) ? 0 : check[:weighting]) }
-        end
-
         def all_checks_which_pass(should_pass = true)
           self.completeness_checks.inject([]) do |results, check|
             unless skip?(check[:skip])
